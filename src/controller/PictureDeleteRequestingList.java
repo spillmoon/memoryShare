@@ -1,0 +1,63 @@
+package controller;
+
+import java.io.IOException;
+import java.sql.SQLException;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.json.simple.JSONObject;
+
+import service.PictureService;
+import service.RoomService;
+
+@WebServlet("/pictureDeleteRequestingList.do")
+public class PictureDeleteRequestingList extends HttpServlet{
+	private static final long serialVersionUID = 1L;	
+	
+	public PictureDeleteRequestingList(){
+		super();
+	}
+	
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		doPost(request, response);
+	}
+	
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+		request.setCharacterEncoding("euc-kr");
+		
+		String roomName = request.getParameter("roomName");
+		String memID = request.getParameter("memID");
+		
+		int roomNo;
+		
+		RoomService rService = new RoomService();
+		PictureService pService = new PictureService();
+		
+		JSONObject requestingList = new JSONObject();
+		
+		try{
+			HttpSession session = request.getSession();
+			
+			roomNo = rService.roomNameTOroomNo(roomName);
+			
+			requestingList = pService.pictureDeleteRequestingList(roomNo, memID);
+			
+			if(requestingList == null){
+				session.setAttribute("result", null);
+				response.sendRedirect("sendJSONArray.jsp");
+			}else{
+				session.setAttribute("result", requestingList);
+				response.sendRedirect("sendJSONArray.jsp");
+			}
+		}catch(SQLException e){
+			e.printStackTrace();
+		}
+		
+	}
+		
+}
